@@ -148,6 +148,20 @@ class Cube(object):
         # returns the cube in a 3d list
         return self.cube
 
+    def turnFace(self, face):
+        if face == 0:
+            return ["U"]
+        elif face == 1:
+            return ["L"]
+        elif face == 2:
+            return ["F"]
+        elif face == 3:
+            return ["R"]
+        elif face == 4:
+            return ["B"]
+        elif face == 5:
+            return ["D"]
+
     # def rotateRightFace(self):
     #     # 5, 9, 13 are the rows for the right face
     #     t0 = time.time()
@@ -277,7 +291,7 @@ def makeMoves(cube, algorithm):
         elif move == "F2":
             cube.turnFront()
             cube.turnFront()
-    return cube
+    return algorithm
 
 def testMoves():
     s = copy.deepcopy(solved)

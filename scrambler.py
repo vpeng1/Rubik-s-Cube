@@ -1,4 +1,3 @@
-
 from rubikMoves import *
 import random
 
@@ -12,22 +11,22 @@ def scrambleAlgorithm():
     while len(scramble) < numMoves:
         move = random.choice(moveList)
         if move[0] != prevMove[0]:
-            # to prevent making the same move twice in a row
+            # to prevent rotating the same face twice in a row
             scramble.append(move)
         prevMove = move
     return scramble
 
-def reverseScramble(scramble):
-    # reverses the scramble
-    rScramble = []
-    for i in range(len(scramble)-1, -1, -1):
-        if "2" in scramble[i]:
-            rScramble.append(scramble[i])
-        elif "'" in scramble[i]:
-            rScramble.append(scramble[i][0])
-        elif "'" not in scramble[i]:
-            rScramble.append(scramble[i] + "'")
-    return rScramble
+def reverseAlg(alg):
+    # reverses the algorithm
+    rAlg = []
+    for i in range(len(alg)-1, -1, -1):
+        if "2" in alg[i]:
+            rAlg.append(alg[i])
+        elif "'" in alg[i]:
+            rAlg.append(alg[i][0])
+        elif "'" not in alg[i]:
+            rAlg.append(alg[i] + "'")
+    return rAlg
 
 def scrambleCube(scramble):
     # returns the scrambled cube
@@ -56,17 +55,18 @@ def scrambleCube(scramble):
          [48, 49, 50],
          [51, 52, 53]]
     cube = [solvedU, solvedL, solvedF, solvedR, solvedB, solvedD]
-    solved = Cube(cube)
-    assert(type(solved) == Cube)
-    return makeMoves(solved, scramble)
+    c = Cube(cube)
+    assert(type(c) == Cube)
+    makeMoves(c, scramble)
+    return c
 
 def testScramble():
     print("Testing scrambler...", end="")
     s = scrambleAlgorithm()
     c = scrambleCube(s)
-    r = reverseScramble(s)
-    solution = makeMoves(c, r)
-    assert(str(solution) == str(solved))
+    r = reverseAlg(s)
+    makeMoves(c, r)
+    assert(str(c) == str(solved))
     assert(isinstance(c, Cube))
     cube = c.getListCube()
     assert(isinstance(cube, list))
