@@ -48,12 +48,12 @@ class Cube(object):
     def __init__(self, cube):
         self.cube = cube
         self.c = copy.deepcopy(self.cube)
-        self.upper = cube[0]
-        self.left = cube[1]
-        self.front = cube[2]
-        self.right = cube[3]
-        self.back = cube[4]
-        self.down = cube[5]
+        self.upper = self.cube[0]
+        self.left = self.cube[1]
+        self.front = self.cube[2]
+        self.right = self.cube[3]
+        self.back = self.cube[4]
+        self.down = self.cube[5]
 
     def turnRight(self):
         # turns the right face clockwise
@@ -161,6 +161,20 @@ class Cube(object):
             return ["B"]
         elif face == 5:
             return ["D"]
+
+    def rotateYaxis(self):
+        # rotates the cube around the y-axis clockwise relative to the down face
+        d = copy.deepcopy(self.down)
+        u = copy.deepcopy(self.upper)
+        for row in range(3):
+            self.left[row], self.front[row], self.right[row], self.back[row] = \
+                self.back[row], self.left[row], self.front[row], self.right[row]
+            for col in range(3):
+                self.down[row][col] = d[2-col][row]
+                self.upper[row][col] = u[col][2-row]
+        self.c = copy.deepcopy(self.cube)
+        return self.cube
+
 
     # def rotateRightFace(self):
     #     # 5, 9, 13 are the rows for the right face
@@ -291,6 +305,12 @@ def makeMoves(cube, algorithm):
         elif move == "F2":
             cube.turnFront()
             cube.turnFront()
+        elif move == "y":
+            cube.rotateYaxis()
+        elif move == "y'":
+            cube.rotateYaxis()
+            cube.rotateYaxis()
+            cube.rotateYaxis()
     return algorithm
 
 def testMoves():
@@ -361,5 +381,14 @@ def testMoves():
             cube.turnUp()
     assert(str(cube) == str(solved))
     print("Passed!")
+
+    print("Testing Rotate Y-Axis...", end="")
+    cube.rotateYaxis()
+    cube.rotateYaxis()
+    cube.rotateYaxis()
+    cube.rotateYaxis()
+    assert(str(cube) == str(solved))
+    print("Passed!")
+
 
 testMoves()
