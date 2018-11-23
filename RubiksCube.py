@@ -3,29 +3,8 @@ from rubikMoves import *
 from algorithms import *
 import time
 
-
 #### append each algorithm to a list of moves
 
-cube = solved
-c = Cube(cube)
-print(c.turnFace(0)*2)
-print(type(c))
-makeMoves(c, ["R2", "U2"])
-t1 = time.time()
-x = solveCross(c, [[50, 34]], colors)
-t2 = time.time()
-print(x)
-print(t2-t1)
-# moves = []
-# print(c)
-# x = alignEdge(c, 50, 34, [0, 1, 0], [1, 0, 1], colors)
-# print(c)
-# print(x)
-#
-# y = solveTheCross(c, moveList)
-# print(y)
-# print(c)
-# print(x+y)
 def reduceMoves(moves):
     # takes in a list of moves and gets rid of unnecessary moves
     # returns a simplified list of moves
@@ -133,3 +112,26 @@ def testReduceMoves():
     print("Passed!")
 
 testReduceMoves()
+
+t1 = time.time()
+s = scrambleAlgorithm()
+print(s)
+c = scrambleCube(s)
+print("c", c)
+print("Solving Cross...")
+x = solveCross(c, whiteEdges, colors)
+# print("x", x)
+print(reduceMoves(x))
+t2 = time.time()
+print(t2-t1)
+t3 = time.time()
+y = solveCorners(c, whiteCorners, colors)
+# print("y", y)
+print(reduceMoves(y))
+t4 = time.time()
+print(t4-t3)
+
+
+
+
+
