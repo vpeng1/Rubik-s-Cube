@@ -311,6 +311,9 @@ def makeMoves(cube, algorithm):
             cube.rotateYaxis()
             cube.rotateYaxis()
             cube.rotateYaxis()
+        elif move == "y2":
+            cube.rotateYaxis()
+            cube.rotateYaxis()
     return algorithm
 
 def testMoves():
