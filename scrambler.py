@@ -1,3 +1,5 @@
+# import from rubikMoves and import random
+
 from rubikMoves import *
 import random
 
