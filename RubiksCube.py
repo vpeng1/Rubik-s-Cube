@@ -113,25 +113,34 @@ def testReduceMoves():
 
 testReduceMoves()
 
-t1 = time.time()
+t0 = time.time()
 s = scrambleAlgorithm()
 print(s)
 c = scrambleCube(s)
-print("c", c)
-print("Solving Cross...")
+print("scramble", c)
+t1 = time.time()
 x = solveCross(c, whiteEdges, colors)
 # print("x", x)
 print(reduceMoves(x))
 t2 = time.time()
-print(t2-t1)
-t3 = time.time()
 y = solveCorners(c, whiteCorners, colors)
 # print("y", y)
 print(reduceMoves(y))
+t3 = time.time()
+z = solveSecondLayer(c, colors)
+print(reduceMoves(z))
 t4 = time.time()
-print(t4-t3)
+a = solveLastLayer(c)
+print(reduceMoves(a))
+t5 = time.time()
 
-
+print()
+print("scramble time:", t1-t0)
+print("cross time:", t2-t1)
+print("corners time:", t3-t2)
+print("second layer time:", t4-t3)
+print("last layer time:", t5-t4)
+print("total time:", t5-t1)
 
 
 
