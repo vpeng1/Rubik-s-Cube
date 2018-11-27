@@ -112,35 +112,72 @@ def testReduceMoves():
     print("Passed!")
 
 testReduceMoves()
+solvedU = \
+    [[0, 1, 2],
+     [3, 4, 5],
+     [6, 7, 8]]
+solvedL = \
+    [[9, 10, 11],
+     [12, 13,14],
+     [15, 16, 17]]
+solvedF = \
+    [[18, 19, 20],
+     [21, 22, 23],
+     [24, 25, 26]]
+solvedR = \
+    [[27, 28, 29],
+     [30, 31, 32],
+     [33, 34, 35]]
+solvedB = \
+    [[36, 37, 38],
+     [39, 40, 41],
+     [42, 43, 44]]
+solvedD = \
+    [[45, 46, 47],
+     [48, 49, 50],
+     [51, 52, 53]]
+
+solved = [solvedU, solvedL, solvedF, solvedR, solvedB, solvedD]
 
 t0 = time.time()
 s = scrambleAlgorithm()
 print(s)
 c = scrambleCube(s)
 print("scramble", c)
-t1 = time.time()
-x = solveCross(c, whiteEdges, colors)
-# print("x", x)
-print(reduceMoves(x))
-t2 = time.time()
-y = solveCorners(c, whiteCorners, colors)
-# print("y", y)
-print(reduceMoves(y))
-t3 = time.time()
-z = solveSecondLayer(c, colors)
-print(reduceMoves(z))
-t4 = time.time()
-a = solveLastLayer(c)
-print(reduceMoves(a))
-t5 = time.time()
+def solveCube(c):
+    if c.cube != solved:
+        t1 = time.time()
+        x = solveCross(c, whiteEdges, colors)
+        x1 = reduceMoves(x)
+        print(len(x1), x1)
+        t2 = time.time()
+        y = solveCorners(c, whiteCorners, colors)
+        y1 = reduceMoves(y)
+        print(len(y1), y1)
+        t3 = time.time()
+        z = solveSecondLayer(c, colors)
+        z1 = reduceMoves(z)
+        print(len(z1), z1)
+        t4 = time.time()
+        a = solveLastLayer(c)
+        a1 = reduceMoves(a)
+        print(len(a1), a1)
+        t5 = time.time()
+        reduced = reduceMoves(x1+y1+z1+a1)
+        print(len(x1) + len(y1) + len(z1) + len(a1))
+        print("Reduced Moves", len(reduced), reduced)
+        return reduced
 
-print()
-print("scramble time:", t1-t0)
-print("cross time:", t2-t1)
-print("corners time:", t3-t2)
-print("second layer time:", t4-t3)
-print("last layer time:", t5-t4)
-print("total time:", t5-t1)
+        print()
+        # print("scramble time:", t1-t0)
+        print("cross time:", t2-t1)
+        print("corners time:", t3-t2)
+        print("second layer time:", t4-t3)
+        print("last layer time:", t5-t4)
+        print("total time:", t5-t1)
+    else:
+        print("Cube is already solved!!!")
+solveCube(c)
 
 
 
