@@ -1,3 +1,7 @@
+
+""" Contains a function that shortens repeated moves and a solveCube function
+that combines all the algorithms from algorithms.py into one"""
+
 from scrambler import *
 from rubikMoves import *
 from algorithms import *
@@ -166,7 +170,6 @@ def solveCube(c):
         reduced = reduceMoves(x1+y1+z1+a1)
         print(len(x1) + len(y1) + len(z1) + len(a1))
         print("Reduced Moves", len(reduced), reduced)
-        return reduced
 
         print()
         # print("scramble time:", t1-t0)
@@ -175,9 +178,9 @@ def solveCube(c):
         print("second layer time:", t4-t3)
         print("last layer time:", t5-t4)
         print("total time:", t5-t1)
+        return reduced
     else:
         print("Cube is already solved!!!")
 solveCube(c)
-
 
 
