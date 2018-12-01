@@ -1,4 +1,7 @@
 
+""" Contains the Cube class including all the moves that can be made on a
+Rubik's Cube """
+
 # visual representation of cube layout. Not used anywhere
 solved1 = [
               [0,  1,  2 ],
