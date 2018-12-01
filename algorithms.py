@@ -3,7 +3,7 @@
 from rubikMoves import *
 from scrambler import *
 
-"""contains all the steps to solve the cube"""
+"""contains all the steps and algorithms used to solve a Rubik's Cube"""
 
 # edges = [{7,19}, {14,21}, {23,30}, {25,46}, {5,28}, {3,10}, {1,37}, {32,39},
 #          {34,50}, {43,52}, {41,12}, {16,48}]
@@ -765,7 +765,9 @@ def permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace, moves=Non
 
 def orientYellowCorners(moveCube, yellowCorners):
     moves = []
+    print("yellowCorners are:", yellowCorners)
     for corner in yellowCorners:
+        print("corner:", corner)
         yellow, loc1, loc2 = getLocation(corner, moveCube, range(9))
         if yellow[0] != 0:
             topRight = [[2, 0, 1], [0, 2, 2], [3, 0, 0]]
@@ -783,11 +785,12 @@ def orientYellowCorners(moveCube, yellowCorners):
     while moveCube.cube[2][0][1] != greenFrontEdge:
         # adjust upper face
         moves.extend(makeMoves(moveCube, ["U"]))
-    print("these are the moves:", moves)
+    # print("these are the moves:", moves)
     return moves
 
-def solveLastLayer(moveCube):
-    moves = []
+def solveLastLayer(moveCube, moves=None):
+    if moves == None:
+        moves = []
     moves.extend(solveYellowCross(moveCube))
     cube = moveCube.getListCube()
     print("Solving Yellow Cross...", end="")
@@ -804,6 +807,8 @@ def solveLastLayer(moveCube):
     assert(cube[4][0][1] == 37)
     print("Permuted!!!")
     moves.extend(tryPermuteOrientCorners(moveCube, yellowCorners, colors, colorToFace))
+    if moveCube.cube != solved:
+        return solveLastLayer(moveCube, moves)
     # moves.extend(permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace))
     # print("last layer moves:", moves)
     # print("Permuting Yellow Corners...", end="")
@@ -814,26 +819,28 @@ def solveLastLayer(moveCube):
     # print("Permuted!!!")
     # print("Orienting Yellow Corners...", end="")
     # moves.extend(orientYellowCorners(moveCube, yellowCorners))
-
+    print("last layer: ", moves)
     print("CUBE IS SOLVED!!!")
     return moves
 
-def tryPermuteOrientCorners(moveCube, yellowCorners, colors, colorToFace, moves=None):
+def tryPermuteOrientCorners(moveCube, yellowCorners, colors, colorToFace, moves=None, depth=0):
     if moves == None:
         moves = []
     cube = moveCube.getListCube()
-    moves.extend(permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace))
-    print("last layer moves:", moves)
+    perm = permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace)
+    moves.extend(perm)
+    # print("last layer moves:", moves)
     print("Permuting Yellow Corners...", end="")
     assert (cube[1][0][1] == 10)
     assert (cube[2][0][1] == 19)
     assert (cube[3][0][1] == 28)
     assert (cube[4][0][1] == 37)
     print("Permuted!!!")
-    print("Orienting Yellow Corners...", end="")
+    print("Orienting Yellow Corners...")
     orient = orientYellowCorners(moveCube, yellowCorners)
     moves.extend(orient)
     try:
+        cube = moveCube.getListCube()
         assert (cube[0] == solved[0])
         assert (cube[1] == solved[1])
         assert (cube[2] == solved[2])
@@ -844,12 +851,18 @@ def tryPermuteOrientCorners(moveCube, yellowCorners, colors, colorToFace, moves=
         return moves
     except:
         r = reverseAlg(orient)
-        moves.extend(r)
+        p = reverseAlg(perm)
+        moves.extend(makeMoves(moveCube, r))
+        moves.extend(makeMoves(moveCube, p))
         moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U",
                                           "R'", "U'", "L"]))
+        if depth == 1:
+            moves.extend(makeMoves(moveCube, ["R", "U", "R'", "U", "R", "U2", "R'"]))
+            return moves
+
         # case in which the corners were not permuted properly in the
         # permutation step
         return tryPermuteOrientCorners(moveCube, yellowCorners, colors,
-                                       colorToFace, moves)
+                                       colorToFace, moves, depth+1)
 
 
