@@ -1,5 +1,7 @@
 # import from rubikMoves and import random
 
+""" Contains functions that produce a randomly scrambled Rubik's Cube"""
+
 from rubikMoves import *
 import random
 
