@@ -1,0 +1,95 @@
+
+
+1. Select a View
+Click the "View" button to switch between a 2D view and a 3D view
+
+2a. Input your Cube
+Select a color from the color palette at the top of the screen. Then click on
+the sticker on the cube you want to have that color.
+
+2b. Generate a Random Cube
+Press the "Scramble" button to generate a random scrambled cube. An
+algorithm will appear on the screen so that you may scramble your own cube in
+the same way. Note that you must start scrambling with a solved cube.
+
+3. Use Keyboard Commands to Rotate the Faces
+Press l, r, u, d, f, or b on your keyboard. These letters represent a clockwise
+rotation of the respective face (look at the Notation page for more information
+about face turns). You may also rotate the entire cube by pressing "y" or "x" on
+your keyboard. Note that you cannot rotate faces or change anything about the
+cube while it is solving itself.
+
+4. Solve
+Press the "Solve" button to get the solution. If the inputted cube is valid,
+it will begin to solve itself. You can speed up, pause, or go back a move using
+the respective buttons.
+
+
+####
+
+
+
+
+1. Select a View
+Click the "View" button to switch between a 2D view and a 3D view
+
+2a. Input your Cube
+Select a color from the color palette at the top of the screen.
+Then click on the sticker on the cube you want to have that color.
+
+2b. Generate a Random Scramble
+Press the "Scramble" button to generate a random scrambled cube. An
+algorithm will appear on the screen so that you may scramble your own cube
+in the same way. Note that you must start with a solved cube.
+
+3. Use Keyboard Commands to Rotate the Faces
+Press l, r, u, d, f, or b on your keyboard. These letters represent a clockwise
+rotation of the respective face (look at the Notation page for more information
+about face turns). You may also rotate the entire cube by pressing "y" or "x" on
+your keyboard. Note that you cannot rotate faces or change anything about the
+cube while it is solving itself.
+
+4. Begin Timer
+Press the "Begin Timer" button to start the timer to determine the amount of
+time it take you to solve a particular cube. Use the keyboard commands
+mentioned in step 3 to solve the cube.
+
+
+####
+
+
+
+We will be using letters to represent the sides of the cube. Note that all the
+moves are relative to the face that is currently facing you. After rotating the
+cube, the moves will be relative to the new side.
+
+Standard Moves:
+R: rotate right face 90 degrees clockwise
+L: rotate left face 90 degrees clockwise
+U: rotate upper face 90 degrees clockwise
+D: rotate down face 90 degrees clockwise
+F: rotate front face 90 degrees clockwise
+B: rotate back face 90 degrees clockwise
+
+Cube Rotations:
+y: rotate the entire cube clockwise by 90 degrees as if making a U move
+x: rotate the entire cube clockwise by 90 degrees as if making an R move
+
+Inverse Moves:
+A move followed by an apostrophe (e.g. R', L', etc.) means rotating the
+respective face 90 degrees in the counterclockwise direction instead of in the
+normal clockwise direction.
+
+Double Moves:
+A move followed by the number 2 (e.g. R2, L2, etc.) means rotating the
+respective face 180 degrees in either the clockwise or the counterclockwise
+direction.
+
+
+
+
+
+
+
+
+
