@@ -5,10 +5,7 @@ from scrambler import *
 
 """contains all the steps and algorithms used to solve a Rubik's Cube"""
 
-# edges = [{7,19}, {14,21}, {23,30}, {25,46}, {5,28}, {3,10}, {1,37}, {32,39},
-#          {34,50}, {43,52}, {41,12}, {16,48}]
-# corners = [{6,11,18}, {8,20,27}, {17,24,45}, {26,33,47}, {2,29,36}, {35,42,53},
-#            {15,44,51}, {0,9,38}]
+
 colors = {"yellow": set(range(9)), "red": set(range(9, 18)), "green":
             set(range(18, 27)), "orange": set(range(27, 36)), "blue":
             set(range(36, 45)), "white": set(range(45, 54))}
@@ -22,6 +19,24 @@ faceToColor = {0: "yellow", 1: "red", 2: "green", 3: "orange", 4: "blue",
 ################################################################################
 #### Solving the White Edges ####
 ################################################################################
+
+# def rotateToStandard(moveCube, moves=None):
+#     if moves == None:
+#         moves = []
+#     green = 22
+#     yellow = 4
+#     if moveCube.cube[3][1][1] == green or moveCube.cube[1][1][1] == green:
+#         while moveCube.cube[0][1][1] != yellow:
+#             moves.extend(makeMoves(moveCube, ["x"]))
+#         while moveCube.cube[2][1][1] != green:
+#             moves.extend(makeMoves(moveCube, ["y'"]))
+#     elif moveCube.cube[2][1][1] == green or moveCube.cube[4][1][1] == green:
+#         moves.extend(makeMoves(moveCube, ["y"]))
+#         return rotateToStandard(moveCube, moves)
+#     elif moveCube.cube[0][1][1] == green or moveCube.cube[5][1][1] == green:
+#         moves.extend(makeMoves(moveCube, ["x"]))
+#         return rotateToStandard(moveCube, moves)
+#     return moves
 
 def getColorEdges(colors, color):
     # returns a list of the edges with color color in the solved state
@@ -97,14 +112,10 @@ def solveCross(moveCube, whiteEdges, colors):
     print("Solving Cross...", end="")
     moves = []
     for edge in whiteEdges:
-        # print("solving for edge", edge)
+        if correctEdgeLoc(edge, moveCube):
+            continue
         cube = moveCube.getListCube()
-        if edge[0] in colors["white"]:
-            white = edge[0]
-            otherColor = edge[1]
-        else:
-            white = edge[1]
-            otherColor = edge[0]
+        white, otherColor = edge
         location = getLocation({white, otherColor}, cube)
         moves.extend(putOnBottom(moveCube, [white, otherColor], location, colors))
         # print("solve", moves)
@@ -116,9 +127,19 @@ def solveCross(moveCube, whiteEdges, colors):
     print("PASSED!!!!!!!!!!")
     return moves
 
+def correctEdgeLoc(edge, moveCube):
+    cube = moveCube.cube
+    if edge == {25, 46}:
+        return cube[5][0][1] == 46
+    elif edge == {34, 50}:
+        return cube[5][1][2] == 50
+    elif edge == {43, 52}:
+        return cube[5][2][1] == 52
+    elif edge == {16, 48}:
+        return cube[5][1][0]
+
 def alignEdge(moveCube, whiteNum, otherNum, whiteLocation, otherLoc, colors, moves=None):
     # aligns the edge on the upper face
-    # print(whiteNum, otherNum, whiteLocation, otherLoc)
     if moves == None:
         moves = []
     cube = moveCube.getListCube()
@@ -128,20 +149,13 @@ def alignEdge(moveCube, whiteNum, otherNum, whiteLocation, otherLoc, colors, mov
             otherC = color
             break
     if whiteLocation[0] == 0:
-        # print("000000000")
         # base case is if white is on top
-        # i = 0
-        # print("locations", whiteLocation, otherLoc)
-        while otherLoc[0] != colorToFace[otherC]: # and i < 4:
-            # i += 1
+        while otherLoc[0] != colorToFace[otherC]:
             moves.extend(makeMoves(moveCube, ["U"]))
-            # print("0 moves", i)
             l = getLocation({whiteNum, otherNum}, moveCube)
-            # print(l)
             whiteLocation, otherLoc = l
         return moves
     elif whiteLocation[0] == 2:
-        # print("2222222222")
         # move to top. Then go to base case
         while whiteLocation[0] != 0:
             if otherLoc[0] == 0:
@@ -161,12 +175,10 @@ def alignEdge(moveCube, whiteNum, otherNum, whiteLocation, otherLoc, colors, mov
                 # the other centers. Original location is face 2, row 1, col 1
                 moves.extend(makeMoves(moveCube, ["y"]))
                 green = moveCube.cube[2][1][1]
-            # print("moves 2...", moves)
             l = getLocation({whiteNum, otherNum}, moveCube)
             whiteLocation, otherLoc = l
         return alignEdge(moveCube, whiteNum, otherNum, whiteLocation, otherLoc, colors, moves)
     elif whiteLocation[0] == 5:
-        # print("5555555555")
         # move to top
         moves.extend(makeMoves(moveCube, moveCube.turnFace(f) * 2))
         l = getLocation({whiteNum, otherNum}, moveCube)
@@ -174,9 +186,8 @@ def alignEdge(moveCube, whiteNum, otherNum, whiteLocation, otherLoc, colors, mov
         return alignEdge(moveCube, whiteNum, otherNum, whiteLocation, otherLoc, colors, moves)
     else:
         # recursive step
-        # rotate the cube so that whiteLocation is 2
+        # rotate the cube so that whiteLocation[0] is 2
         # then go to base case
-        # print("white is...", whiteLocation)
         while whiteLocation[0] != 2:
             moves.extend(makeMoves(moveCube, ["y"]))
             l = getLocation({whiteNum, otherNum}, moveCube)
@@ -191,8 +202,6 @@ def putOnBottom(moveCube, edge, location, colors):
     moves.extend(alignEdge(moveCube, white, otherColor, whiteLocation, otherLoc, colors))
     # update locations
     whiteLocation, otherLoc = getLocation({white, otherColor}, moveCube)
-    # print("bottom put align", moves)
-    # print("white and other locations...", whiteLocation, otherLoc)
     # move particular edge to the bottom
     if otherLoc[0] == 1:
         moves.extend(makeMoves(moveCube, ["L2"]))
@@ -202,8 +211,6 @@ def putOnBottom(moveCube, edge, location, colors):
         moves.extend(makeMoves(moveCube, ["R2"]))
     elif otherLoc[0] == 4:
         moves.extend(makeMoves(moveCube, ["B2"]))
-    # print("move to bottom...", moves)
-    # moves.extend(solveTheCross(moveCube, moveList))
     return moves
 
 
@@ -222,7 +229,6 @@ def getColorCorners(colors, color):
             cornerList.append(corner)
     return cornerList
 
-# getLocation is in the algorithms.py file
 
 def checkCornerLocation(cube, piece, location, colors):
     # want corners to be ordered with white first then the other colors
@@ -261,30 +267,37 @@ def solveCorners(moveCube, whiteCorners, colors):
     print("Solving corners...", end="")
     moves = []
     cube = moveCube.getListCube()
-    # print("whiteCorners", whiteCorners)
     for corner in whiteCorners:
-        location = getLocation(corner, cube)
-        # print("THis is the lcoation", location)
-        moves.extend(cornToBottom(moveCube, corner, location, colors))
-        # print("corner is...", corner)
-        # print("corner moves", moves)
-
-        cube = moveCube.getListCube()
-    # print(moves)
+        if rightCornerLoc(corner, moveCube):
+            continue
+        else:
+            location = getLocation(corner, cube)
+            moves.extend(cornToBottom(moveCube, corner, location, colors))
+            cube = moveCube.getListCube()
     assert(cube[5][0][0] == 45)
     assert(cube[5][0][2] == 47)
     assert(cube[5][2][0] == 51)
     assert(cube[5][2][2] == 53)
-    print("YES!!!")
-
+    print("Solved")
     return moves
+
+def rightCornerLoc(corner, moveCube):
+    cube = moveCube.cube
+    print("corner", corner)
+    if corner == {35, 42, 53}:
+        return cube[5][2][2] == 53
+    elif corner == {15, 44, 51}:
+        return cube[5][2][0] == 51
+    elif corner == {17, 24, 45}:
+        return cube[5][0][0] == 45
+    elif corner == {26, 33, 47}:
+        return cube[5][0][2] == 47
 
 def cornToBottom(moveCube, corner, location, colors):
     moves = []
     corn = getCorrectCorner(corner, colors)
     moves.extend(getCornTop(moveCube, location))
     loc = getLocation(corner, moveCube)
-    # print("bottom loc", loc)
     moves.extend(alignCorn(moveCube, corn, loc, corner, colorToFace))
     return moves
 
@@ -296,9 +309,8 @@ def getCornTop(moveCube, location):
         if side[0] == 5:
             downSide = side
     if downSide != None:
-        # print("move to top", location)
-        if downSide[1] == 0: # row 0
-            if downSide[2] == 0: # col 0
+        if downSide[1] == 0:
+            if downSide[2] == 0:
                 moves.extend(makeMoves(moveCube, ["F", "U", "F'"]))
             else:
                 moves.extend(makeMoves(moveCube, ["F'", "U'", "F"]))
@@ -327,13 +339,11 @@ def alignCorn(moveCube, corn, location, corner, colorToFace, moves=None):
             # c1 will be on the face with the c2 center
             moves.extend(makeMoves(moveCube, ["U"]))
             l = getLocation(corner, moveCube)
-            # print("l is...", l, whiteLoc)
             whiteLoc, loc1, loc2 = l
         while whiteLoc != [0, 2, 2]:
             # want the piece to be the bottom left piece on the upper face
             moves.extend(makeMoves(moveCube, ["y"]))
             l = getLocation(corner, moveCube)
-            # print("l is...", l, whiteLoc)
             whiteLoc, loc1, loc2 = l
         moves.extend(makeMoves(moveCube, ["R", "U", "R'", "U'", "R", "U", "R'",
                                           "U'", "R", "U", "R'"]))
@@ -343,13 +353,11 @@ def alignCorn(moveCube, corn, location, corner, colorToFace, moves=None):
             # get white side to be on the face with the second color
             moves.extend(makeMoves(moveCube, ["U"]))
             l = getLocation(corner, moveCube)
-            # print("l is...", l, whiteLoc)
             whiteLoc, loc1, loc2 = l
         while whiteLoc[0] != 1:
             # rotate cube so that the white side of the corner is on the left face
             moves.extend(makeMoves(moveCube, ["y"]))
             l = getLocation(corner, moveCube)
-            # print("l is...", l, whiteLoc)
             whiteLoc, loc1, loc2 = l
         moves.extend(makeMoves(moveCube, ["L'", "U'", "L"]))
     elif loc2[0] == 0:
@@ -357,13 +365,11 @@ def alignCorn(moveCube, corn, location, corner, colorToFace, moves=None):
         while whiteLoc[0] != f2:
             moves.extend(makeMoves(moveCube, ["U"]))
             l = getLocation(corner, moveCube)
-            # print("l is...", l, whiteLoc)
             whiteLoc, loc1, loc2 = l
         while whiteLoc[0] != 3:
             # rotate cube so that the white side is on the right face
             moves.extend(makeMoves(moveCube, ["y"]))
             l = getLocation(corner, moveCube)
-            # print("l is...", l, whiteLoc)
             whiteLoc, loc1, loc2 = l
         moves.extend(makeMoves(moveCube, ["R", "U", "R'"]))
     green = moveCube.cube[2][1][1]
@@ -393,20 +399,31 @@ def solveSecondLayer(moveCube, colors):
     print("Solving Second Layer...", end="")
     moves = []
     edges = layer2Edges(colors)
-    # print("edges are...", edges)
     for edge in edges:
+        if right2EdgeLoc(edge, moveCube):
+            continue
         moves.extend(align2Edge(moveCube, edge))
-        # print("2 edges ===", moves )
     try:
         cube = moveCube.cube
         assert (cube[2][1][0] == 21 and cube[1][1][2] == 14)
         assert (cube[2][1][2] == 23 and cube[3][1][0] == 30)
         assert (cube[3][1][2] == 32 and cube[4][1][0] == 39)
         assert (cube[4][1][2] == 41 and cube[1][1][0] == 12)
-        print("WOW IT PASSED!!!")
+        print("Solved!")
     except:
         print("FAIL :(")
     return moves
+
+def right2EdgeLoc(edge, moveCube):
+    cube = moveCube.cube
+    if edge == {21, 14}:
+        return cube[2][1][0] == 21
+    elif edge == {23, 30}:
+        return cube[2][1][2] == 23
+    elif edge == {32, 39}:
+        return cube[3][1][2] == 32
+    elif edge == {41, 12}:
+        return cube[4][1][2] == 41
 
 def layer2Edges(colors):
     # find the edges that do not have yellow or white in them
@@ -414,22 +431,11 @@ def layer2Edges(colors):
              {32, 39}, {34,50}, {43,52}, {41,12}, {16,48}]
     yellowEdges = getSetColorEdges(colors, "yellow")
     whiteEdges = getSetColorEdges(colors, "white")
-    # print("yellow", yellowEdges)
     nonYellowWhite = []
     for edge in edges:
         if edge not in yellowEdges and edge not in whiteEdges:
             nonYellowWhite.append(edge)
     return nonYellowWhite
-
-# def findLayer2Edges(moveCube, colors):
-#     layer2 = layer2Edges(colors)
-#     print(layer2)
-#     cube = moveCube.getListCube()
-#     locations = []
-#     for edge in layer2:
-#         locations.append(getLocation(edge, cube))
-#     print("locations", locations)
-#     return locations
 
 def align2Edge(moveCube, edge, moves=None):
     if moves == None:
@@ -446,8 +452,6 @@ def align2Edge(moveCube, edge, moves=None):
             # rotate so that it is on the front face
             moves.extend(makeMoves(moveCube, ["y"]))
             c1, c2 = getLocation(edge, moveCube)
-        # if face1 == 1 or face2 == 1:
-        # if cube[1][1][1] == face1 or cube[1][1][1] == face2:
         leftColor = getColors([1, 1, 1], moveCube)
         if leftColor == face1 or leftColor == face2:
             # sticker on top is the same color as the center sticker on the
@@ -472,10 +476,12 @@ def align2Edge(moveCube, edge, moves=None):
             c1, c2 = getLocation(edge, moveCube)
         if c1[2] == 0:
             # column is 0
-            moves.extend(makeMoves(moveCube, ["U'", "L'", "U", "L", "U", "F", "U'", "F'"]))
+            moves.extend(makeMoves(moveCube,
+                                   ["U'", "L'", "U", "L", "U", "F", "U'", "F'"]))
         else:
             # column is 2
-            moves.extend(makeMoves(moveCube, ["U", "R", "U'", "R'", "U'", "F'", "U", "F"]))
+            moves.extend(makeMoves(moveCube,
+                                   ["U", "R", "U'", "R'", "U'", "F'", "U", "F"]))
         green = moveCube.cube[2][1][1]
         greenCenter = 22
         while green != greenCenter:
@@ -484,7 +490,6 @@ def align2Edge(moveCube, edge, moves=None):
             green = moveCube.cube[2][1][1]
         return align2Edge(moveCube, edge, moves)
 
-    # print("align moves", moves)
     return moves
 
 def getColors(location, moveCube):
@@ -558,15 +563,16 @@ def permuteYellowEdges(moveCube):
             range(9, 18)):
         # want two adjacent edges to be in the correct position relative to each
         # other
-        # print("i is...", i)
-
         moves.extend(makeMoves(moveCube, ["U"]))
         if (cube[1][0][1] == 10) and (cube[2][0][1] == 19) and \
                 (cube[3][0][1] == 28) and (cube[4][0][1] == 37):
             return moves
         i += 1
         if i == 4:
-            moves.extend(makeMoves(moveCube, ["R", "U", "R'", "U", "R", "U2", "R'", "U"]))
+            # case in which no two adjacent edges are in the correct
+            # positions relative to each other
+            moves.extend(makeMoves(moveCube,
+                                   ["R", "U", "R'", "U", "R", "U2", "R'", "U"]))
         cube = moveCube.getListCube()
 
     while getColors([3, 0, 1], moveCube) != getColors([3, 1, 1], moveCube) \
@@ -574,35 +580,29 @@ def permuteYellowEdges(moveCube):
         # need the edges on the third face and the fourth face to be permuted
         # correctly
         moves.extend(makeMoves(moveCube, ["y"]))
-        # cube = moveCube.getListCube()
     moves.extend(makeMoves(moveCube, ["R", "U", "R'", "U", "R", "U2", "R'", "U"]))
     green = moveCube.cube[2][1][1]
     greenCenter = 22
     while green != greenCenter:
         moves.extend(makeMoves(moveCube, ["y"]))
         green = moveCube.cube[2][1][1]
-    # print("permute moves", moves)
     return moves
 
-def inRightLocation(corner, moveCube, colors, p=None):
+def inRightLocation(corner, moveCube, colors):
     # checks if a corner is in the correct location
     yellow, loc1, loc2 = getLocation(corner, moveCube, range(9))
     yel, c1, c2 = getCorrectCorner(corner, colors)
     if yellow[0] == 0:
         # yellow side of the corner is in the top face
-        print("it is here", p)
         if colorToFace[c1] == loc1[0] and colorToFace[c2] == loc2[0]:
             # piece is on the correct face
-            print("ksdfksdjhf")
             return True
     elif loc1[0] == 0:
         # color clockwise to the yellow face is in the top face
-        print("no here", p)
         if moveCube.cube[loc2[0]][loc2[1]][1] in colors[c1] and \
                 moveCube.cube[yellow[0]][yellow[1]][1] in colors[c2]:
             return True
     elif loc2[0] == 0:
-        print("actually here", p)
         # color ccw to the yellow face is in the top face
         if moveCube.cube[loc1[0]][loc1[1]][1] in colors[c2] and \
                 moveCube.cube[yellow[0]][yellow[1]][1] in colors[c1]:
@@ -625,42 +625,7 @@ def rightLocation(loc, moveCube, colors):
         elif cube[0][0][2] in colors[color] and cube[4][0][1] in colors[color] \
                 and cube[3][0][2] in range(9):
             return True
-        # else:
-        #     for color2 in color:
-        #         if cube[3][0][2] in colors[color] and cube[4][0][1] in \
-        #             colors[color] and cube[4][0][0] in colors[color2] and \
-        #                 cube[0][0][1] in colors[color2]:
-        #
-        #             return True
-        #         elif cube[0][0][2] in colors[color] and cube[4][0][1] in \
-        #             colors[color] and cube[4][0][0] in colors[color2] and \
-        #             cube[3][0][1] in colors[color2]:
-        #             # top has the color of the right face and right has the
-        #             # color of the left face
-        #             return True
     return False
-
-        # if (moveCube.cube[left[0]][left[1]][left[2]] in colors[color] and
-        #         moveCube.cube[left[0]][left[1]][left[2]-1] in colors[color]) \
-        #         and (moveCube.cube[right[0]][right[1]][right[2]] in colors[color] and
-        #         moveCube.cube[right[0]][right[1]][right[2]+1] in colors[colors]):
-        #     # permuted and oriented correctly
-        #     return True
-        # elif (moveCube.cube[left[0]][left[1]][left[2]] in colors[color] and
-        #         moveCube.cube[right[0]][right[1]][right[2]+1] in colors[color])\
-        #         and (moveCube.cube[top[0]][top[1]][top[2]] in colors[color]
-        #         and moveCube.cube[left[0]][left[1]][left[2]-1] in colors[color]):
-        #     # top has the color of the left face and left has the color of the
-        #     # right face
-        #     return True
-        # elif (moveCube.cube[top[0]][top[1]][top[2]] in colors[color] and
-        #         moveCube.cube[right[0]][right[1]][right[2]+1] in colors[color])\
-        #         and (moveCube.cube[left[0]][left[1]][left[2]] in colors[color]
-        # and moveCube.cube[top[0]][top[1]][top[2]-1]):
-        #     # top has the color of the right face and left has the color of
-        #     # the top face
-        #     return True
-
 
 
 yellowCorners = getColorCorners(colors, "yellow")
@@ -669,111 +634,36 @@ def permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace, moves=Non
         moves = []
     for i in range(len(yellowCorners)):
         if inRightLocation(yellowCorners[i], moveCube, colors):
-            # print("hi", yellowCorners[i])
-            if inRightLocation(yellowCorners[(i+1)%4], moveCube, colors, "nooooo"):
-                print("nooooo")
+            if inRightLocation(yellowCorners[(i+1)%4], moveCube, colors):
                 # if at least 2 corners are permuted correctly then all corners
                 # are permuted correctly
                 return moves
             while moveCube.cube[2][0][2] not in yellowCorners[i]:
-                # print(moveCube.cube[2][0][2])
                 moves.extend(makeMoves(moveCube, ["y"]))
-                # print("its messing up here  :(")
             moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U", "R'",
                                               "U'", "L"]))
-            # if not rightLocation([[3, 0, 2], [0, 0, 2], [4, 0, 0]], moveCube, colors):
-            if not inRightLocation(yellowCorners[(i+1)%4], moveCube, colors, "what is wrong with this"):
+
+            if not inRightLocation(yellowCorners[(i+1)%4], moveCube, colors):
                 # inverse rotation requires doing the algorithm twice
                 print("what is wrong with this")
                 moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U",
                                                   "R'", "U'", "L"]))
             while moveCube.cube[2][1][1] != 22:
                 moves.extend(makeMoves(moveCube, ["y"]))
-            # print("Moves", moves)
             return moves
-    moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U", "R'", "U'", "L"]))
+    # if not permuted correctly, repeat this step
+    moves.extend(makeMoves(moveCube,
+                           ["U", "R", "U'", "L'", "U", "R'", "U'", "L"]))
     return permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace, moves)
-
-
-    # for corner in yellowCorners:
-    #     yellow, c1, c2 = getCorrectCorner(corner, colors)
-    #     yellowLoc, loc1, loc2 = getLocation(corner, moveCube, range(9))
-    #     if yellowLoc[0] == 0:
-    #         if loc1[0] == colorToFace[c1] and loc2[0] == colorToFace[c2]:
-    #             # faces are the respective faces for the two colors
-    #             print("Here...")
-    #             while loc2[0] != 2:
-    #                 # get to the front face
-    #                 moves.extend(makeMoves(moveCube, ["y"]))
-    #                 yellowLoc, loc1, loc2 = getLocation(corner, moveCube, range(9))
-    #             moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U",
-    #                                               "R'", "U'", "L"]))
-    #             while moveCube.cube[2][1][1] != 22:
-    #                 moves.extend(makeMoves(moveCube, ["y"]))
-    #     elif loc1[0] == 0:
-    #         # side clockwise to the yellow side is on top
-    #         print("loc1[0] ===== 0")
-    #         while yellowLoc[0] != 2:
-    #             # get yellow side to the front face
-    #             moves.extend(makeMoves(moveCube, ["U"]))
-    #             yellowLoc, loc1, loc2 = getLocation(corner, moveCube, range(9))
-    #         rightFaceColor = getColors([3, 0, 1], moveCube)
-    #         frontFaceColor = getColors([2, 0, 1], moveCube)
-    #         if c1 == rightFaceColor and c2 == frontFaceColor:
-    #             print("Here..........")
-    #             moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U",
-    #                                               "R'", "U'", "L"]))
-    #         else:
-    #             while moveCube.cube[2][0][1] != 19:
-    #                 # green and yellow edge is not on the front face
-    #                 moves.extend(makeMoves(moveCube, ["U"]))
-    #     else:
-    #         # side counterclockwise to the yellow side is on top
-    #         print("loc2[0] ====== 0")
-    #         while yellowLoc[0] != 3:
-    #             # get yellow side to the right face
-    #             moves.extend(makeMoves(moveCube, ["U"]))
-    #             yellowLoc, loc1, loc2 = getLocation(corner, moveCube, range(9))
-    #         rightFaceColor = getColors([3, 0, 1], moveCube)
-    #         frontFaceColor = getColors([2, 0, 1], moveCube)
-    #         if c1 == rightFaceColor and c2 == frontFaceColor:
-    #             print("HERE>>>>>>>>")
-    #             moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U",
-    #                                               "R'", "U'", "L"]))
-    #         else:
-    #             while moveCube.cube[2][0][1] != 19:
-    #                 moves.extend(makeMoves(moveCube, ["U"]))
-    #
-    # while moveCube.cube[2][0][1] != 19:
-    #     moves.extend(makeMoves(moveCube, ["U"]))
-    # if not isPermuted(moveCube, yellowCorners):
-    #     # recursive case only happens if none of the corners are permuted
-    #     moves.extend(makeMoves(moveCube, ["U", "R", "U'", "L'", "U",
-    #                                               "R'", "U'", "L"]))
-    #     return permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace, moves, depth+1)
-    # return moves
-
-# def isPermuted(moveCube, yellowCorners):
-#     # check if one corner is permuted correctly
-#     locations = getLocation({8, 20, 27}, moveCube, range(9))
-#     for loc in locations:
-#         print("loc is:", loc)
-#         if loc not in [[0, 2, 2], [2, 0, 2], [3, 0, 0]]:
-#             print("WHYYYYY")
-#             return False
-#     return True
 
 def orientYellowCorners(moveCube, yellowCorners):
     moves = []
-    print("yellowCorners are:", yellowCorners)
     for corner in yellowCorners:
-        print("corner:", corner)
         yellow, loc1, loc2 = getLocation(corner, moveCube, range(9))
         if yellow[0] != 0:
             topRight = [[2, 0, 1], [0, 2, 2], [3, 0, 0]]
             while yellow not in topRight and loc1 not in topRight and \
                     loc2 not in topRight:
-                # print("messing up here")
                 # want the corner piece to be on the top right
                 moves.extend(makeMoves(moveCube, ["U"]))
                 yellow, loc1, loc2 = getLocation(corner, moveCube, range(9))
@@ -785,22 +675,22 @@ def orientYellowCorners(moveCube, yellowCorners):
     while moveCube.cube[2][0][1] != greenFrontEdge:
         # adjust upper face
         moves.extend(makeMoves(moveCube, ["U"]))
-    # print("these are the moves:", moves)
     return moves
 
 def solveLastLayer(moveCube, moves=None):
     if moves == None:
         moves = []
+    print("Solving Yellow Cross...", end="")
     moves.extend(solveYellowCross(moveCube))
     cube = moveCube.getListCube()
-    print("Solving Yellow Cross...", end="")
     assert(cube[0][0][1] in range(9))
     assert(cube[0][1][0] in range(9))
     assert(cube[0][1][2] in range(9))
     assert(cube[0][2][1] in range(9 ))
     print("Cross Solved!!!")
-    moves.extend(permuteYellowEdges(moveCube))
+
     print("Permuting Yellow Edges...", end="")
+    moves.extend(permuteYellowEdges(moveCube))
     assert(cube[1][0][1] == 10)
     assert(cube[2][0][1] == 19)
     assert(cube[3][0][1] == 28)
@@ -809,16 +699,6 @@ def solveLastLayer(moveCube, moves=None):
     moves.extend(tryPermuteOrientCorners(moveCube, yellowCorners, colors, colorToFace))
     if moveCube.cube != solved:
         return solveLastLayer(moveCube, moves)
-    # moves.extend(permuteYellowCorners(moveCube, yellowCorners, colors, colorToFace))
-    # print("last layer moves:", moves)
-    # print("Permuting Yellow Corners...", end="")
-    # assert(cube[1][0][1] == 10)
-    # assert(cube[2][0][1] == 19)
-    # assert(cube[3][0][1] == 28)
-    # assert(cube[4][0][1] == 37)
-    # print("Permuted!!!")
-    # print("Orienting Yellow Corners...", end="")
-    # moves.extend(orientYellowCorners(moveCube, yellowCorners))
     print("last layer: ", moves)
     print("CUBE IS SOLVED!!!")
     return moves
@@ -848,6 +728,7 @@ def tryPermuteOrientCorners(moveCube, yellowCorners, colors, colorToFace, moves=
         assert (cube[4] == solved[4])
         assert (cube[5] == solved[5])
         assert (cube == solved)
+        print("Oriented!")
         return moves
     except:
         r = reverseAlg(orient)
