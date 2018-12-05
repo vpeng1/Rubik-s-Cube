@@ -166,15 +166,29 @@ class Cube(object):
             return ["D"]
 
     def rotateYaxis(self):
-        # rotates the cube around the y-axis clockwise relative to the down face
+        # rotates the cube around the y-axis clockwise as if doing a U-turn
         d = copy.deepcopy(self.down)
         u = copy.deepcopy(self.upper)
         for row in range(3):
             self.left[row], self.front[row], self.right[row], self.back[row] = \
-                self.back[row], self.left[row], self.front[row], self.right[row]
+                self.front[row], self.right[row], self.back[row], self.left[row]
             for col in range(3):
-                self.down[row][col] = d[2-col][row]
-                self.upper[row][col] = u[col][2-row]
+                self.upper[row][col] = u[2-col][row]
+                self.down[row][col] = d[col][2-row]
+        self.c = copy.deepcopy(self.cube)
+        return self.cube
+
+    def rotateXaxis(self):
+        l = copy.deepcopy(self.left)
+        r = copy.deepcopy(self.right)
+        b = copy.copy(self.back)
+        u = copy.copy(self.upper)
+        for row in range(3):
+            self.front[row], self.down[row], self.back[row], self.upper[row] = \
+            self.down[row], b[2-row], u[2-row], self.front[row]
+            for col in range(3):
+                self.left[row][col] = l[2-col][row]
+                self.right[row][col] = r[col][2-row]
         self.c = copy.deepcopy(self.cube)
         return self.cube
 
@@ -317,6 +331,8 @@ def makeMoves(cube, algorithm):
         elif move == "y2":
             cube.rotateYaxis()
             cube.rotateYaxis()
+        elif move == "x":
+            cube.rotateXaxis()
     return algorithm
 
 def testMoves():
@@ -393,6 +409,14 @@ def testMoves():
     cube.rotateYaxis()
     cube.rotateYaxis()
     cube.rotateYaxis()
+    assert(str(cube) == str(solved))
+    print("Passed!")
+
+    print("Testing Rotate X-Axis...", end="")
+    cube.rotateXaxis()
+    cube.rotateXaxis()
+    cube.rotateXaxis()
+    cube.rotateXaxis()
     assert(str(cube) == str(solved))
     print("Passed!")
 
