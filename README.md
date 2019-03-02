@@ -1,4 +1,4 @@
-# Rubik-s-Cube
+# Rubik's Cube Solver
 
 Project Description:
 This project is called the "Rubik's Cube Solver". It allows the user to input
